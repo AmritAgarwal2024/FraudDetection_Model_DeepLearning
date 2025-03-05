@@ -121,7 +121,7 @@ if st.sidebar.button("Train Model"):
         precision, recall, _ = precision_recall_curve(y_test, y_pred)
         
         # Display results
-        st.write(f"### Model Accuracy: {accuracy:.4f}")
+        st.write(f"### Model Accuracy: {accuracy:.4f"})
         
         # Plot Confusion Matrix
         fig, ax = plt.subplots()
@@ -129,6 +129,24 @@ if st.sidebar.button("Train Model"):
         ax.set_title("Confusion Matrix")
         ax.set_xlabel("Predicted")
         ax.set_ylabel("Actual")
+        st.pyplot(fig)
+
+        # Compute and Display SHAP Feature Importance
+        shap_values = compute_shap_values(model, X_train_tensor)
+
+        # Convert SHAP values to DataFrame
+        feature_importance = pd.DataFrame(
+            {"Feature": X.columns, "Importance": np.abs(shap_values.values).mean(axis=0)}
+        ).sort_values(by="Importance", ascending=False)
+
+        # Display Feature Importance Table
+        st.write("### Feature Importance")
+        st.dataframe(feature_importance)
+
+        # Plot Feature Importance
+        fig, ax = plt.subplots()
+        sns.barplot(x="Importance", y="Feature", data=feature_importance, ax=ax)
+        ax.set_title("Feature Importance based on SHAP")
         st.pyplot(fig)
         
         # Plot ROC Curve
