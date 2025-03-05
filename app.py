@@ -121,7 +121,7 @@ if st.sidebar.button("Train Model"):
         precision, recall, _ = precision_recall_curve(y_test, y_pred)
         
         # Display results
-        st.write(f"### Model Accuracy: {accuracy:.4f"})
+        st.write(f"### Model Accuracy: {accuracy:.4f}")
         
         # Plot Confusion Matrix
         fig, ax = plt.subplots()
