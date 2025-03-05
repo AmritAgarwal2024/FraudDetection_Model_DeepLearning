@@ -72,8 +72,8 @@ class FraudNN(nn.Module):
 
 # Function to Compute SHAP Feature Importance
 def compute_shap_values(model, X_train_tensor):
-    explainer = shap.Explainer(model, X_train_tensor)
-    shap_values = explainer(X_train_tensor)
+    explainer = shap.Explainer(lambda x: model(torch.FloatTensor(x)).detach().numpy(), X_train_tensor.numpy())
+    shap_values = explainer(X_train_tensor.numpy())  # Convert tensor to numpy
     return shap_values
 
 # Model Training (Executed on button click)
