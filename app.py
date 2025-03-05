@@ -49,8 +49,8 @@ class FraudNN(nn.Module):
 if st.sidebar.button("Train Model"):
     try:
         # Preprocess dataset
-        X = df.drop(columns=['label'])  # Assuming 'label' column is target
-        y = df['label']
+        X = df.drop(columns=['Fraud_Label'])  # Assuming 'label' column is target
+        y = df['Fraud_Label']
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
         scaler = StandardScaler()
         X_train = scaler.fit_transform(X_train)
