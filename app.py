@@ -100,7 +100,7 @@ if st.sidebar.button("Train Model"):
         
         model.eval()
         with torch.no_grad():
-            y_pred = model(X_test_tensor).numpy()
+            y_pred = model(X_test_tensor).numpy().flatten()
         y_pred_labels = (y_pred > 0.5).astype(int)
         
         accuracy = accuracy_score(y_test, y_pred_labels)
@@ -117,7 +117,8 @@ if st.sidebar.button("Train Model"):
                     X_tensor = torch.FloatTensor(X_numpy)
                     self.model.eval()
                     with torch.no_grad():
-                        return self.model(X_tensor).numpy().flatten()
+                        probabilities = self.model(X_tensor).numpy().flatten()
+                    return (probabilities > 0.5).astype(int)  # Convert probabilities to binary predictions
             
             wrapped_model = ModelWrapper(model)
             result = permutation_importance(wrapped_model, X, y, scoring='accuracy', n_repeats=10, random_state=42)
