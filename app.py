@@ -10,26 +10,18 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 
-# Function to load dataset from Google Drive
-def load_data(drive_url):
-    file_id = drive_url.split('/')[-2]
-    download_url = f"https://drive.google.com/uc?id={file_id}"
-    response = requests.get(download_url)
-    response.raise_for_status()
-    return pd.read_csv(io.StringIO(response.text))
+# Function to load dataset from streamlit
+
+def load_data(file_path="synthetic_fraud_dataset.csv"):
+    return pd.read_csv(file_path)
 
 # Streamlit UI
 st.title("Fraud Detection Model Trainer")
 
-# Dataset Upload
-url = st.text_input("Enter Google Drive CSV Link:")
-if url:
-    try:
-        df = load_data(url)
-        st.write("Dataset Loaded Successfully!")
-        st.write(df.head())
-    except Exception as e:
-        st.error(f"Error loading dataset: {e}")
+
+df = load_data()
+      
+      
 
 # Sidebar for hyperparameters
 st.sidebar.header("Model Hyperparameters")
