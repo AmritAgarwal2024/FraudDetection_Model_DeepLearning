@@ -5,17 +5,39 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, OrdinalEncoder, MinMaxScaler
 import matplotlib.pyplot as plt
 
-# Function to load dataset from local environment
-def load_data(file_path="synthetic_fraud_dataset.csv"):
-    return pd.read_csv(file_path)
+# Function to load and preprocess dataset
+def load_and_preprocess_data(file_path="synthetic_fraud_dataset.csv"):
+    df = pd.read_csv(file_path)
+    
+    # Categorical and numerical column selection
+    cat_columns = ['Transaction_Type', 'Device_Type', 'Location', 'Merchant_Category', 
+                   'IP_Address_Flag', 'Previous_Fraudulent_Activity', 'Card_Type',
+                   'Authentication_Method', 'Is_Weekend', 'Fraud_Label']
+    
+    num_columns = ['Transaction_Amount', 'Account_Balance', 'Daily_Transaction_Count', 
+                   'Avg_Transaction_Amount_7d', 'Failed_Transaction_Count_7d',
+                   'Card_Age', 'Transaction_Distance', 'Risk_Score']
+
+    # Encoding categorical features
+    oe = OrdinalEncoder()
+    df_cat_encoded = pd.DataFrame(oe.fit_transform(df[cat_columns]), columns=cat_columns)
+
+    # Scaling numerical features
+    scaler = MinMaxScaler()
+    df_num_scaled = pd.DataFrame(scaler.fit_transform(df[num_columns]), columns=num_columns)
+
+    # Combining processed data
+    df_cleaned = pd.concat([df_num_scaled, df_cat_encoded], axis=1)
+    
+    return df_cleaned
 
 # Streamlit UI
 st.title("Fraud Detection Model Trainer")
 
-df = load_data()
+df = load_and_preprocess_data()
 
 # Sidebar for hyperparameters
 st.sidebar.header("Model Hyperparameters")
@@ -49,7 +71,7 @@ class FraudNN(nn.Module):
 if st.sidebar.button("Train Model"):
     try:
         # Preprocess dataset
-        X = df.drop(columns=['Fraud_Label'])  # Assuming 'label' column is target
+        X = df.drop(columns=['Fraud_Label'])  # Target variable
         y = df['Fraud_Label']
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
         scaler = StandardScaler()
@@ -94,4 +116,3 @@ if st.sidebar.button("Train Model"):
 
     except Exception as e:
         st.error(f"Error during training: {e}")
-
