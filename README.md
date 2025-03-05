@@ -3,8 +3,9 @@ Dashboard link - https://frauddetectionmodeldeeplearning-kxs2zxcx5jb3slmfllqgzg.
 # Fraud Detection Model  
 
 ## Project Details  
-This project focuses on building a **fraud detection model** using a **neural network** implemented with **PyTorch** and understanding the effect of hyperparameter tuning on model performance.  
-The primary goal is to classify financial transactions as **fraudulent or non-fraudulent** based on transaction-related features.  
+- This project focuses on building a **fraud detection model** using a **neural network** implemented with **PyTorch** and displaying performance metrics on a        streamlit dashboard. 
+- The primary goal is to classify financial transactions as **fraudulent or non-fraudulent** based on transaction-related features using and artificial neural        network model and tweaking the hyperparameters to understand their effect on model accuracy.  It also helps us understand which variables form a transaction 
+  record are more important in determining fraud.
 
 ### Key Activities  
 - **Data Preprocessing:** Encoding categorical variables, scaling numerical variables.  
@@ -21,9 +22,18 @@ The primary goal is to classify financial transactions as **fraudulent or non-fr
 - **Scikit-learn** – Data preprocessing, model evaluation, feature importance analysis.  
 - **Pandas & NumPy** – Data manipulation and numerical processing.  
 - **Streamlit** – Web application interface for model training and visualization.  
-- **Matplotlib & Seaborn** – Data visualization for insights and performance metrics.  
+- **Matplotlib & Seaborn** – Data visualization for insights and performance metrics.
+- **ChatGPt** - Code generation. 
 
 ---
+
+## Problem Statements  
+1. **Fraud Detection:** To detect the chance of a fraud given transaction details.  
+2. **Imbalanced Data:** Fraudulent transactions are rare compared to legitimate ones, making detection challenging.  
+3. **Need for Real-time Detection:** Traditional fraud detection systems often work in hindsight; real-time monitoring is required.  
+4. **Feature Significance Understanding:** Identifying key factors contributing to fraud can improve fraud prevention mechanisms.  
+5. **Hyperparameter Tunig:** Understanding the effect of hyperparameter tuning like epochs, batch size, learning rate, hidden layers, optimizers etc on performance 
+   of an artificial neural network model.  
 
 ## Nature of Data  
 
@@ -55,9 +65,10 @@ The primary goal is to classify financial transactions as **fraudulent or non-fr
 
 ## Observations  
 - The dataset is **highly imbalanced**, with fewer fraudulent transactions.  
-- Fraudulent transactions often have **higher risk scores**, **longer distances**, and **flagged IPs**.  
-- The **neural network model performs better with ReLU activation and Adam optimizer**.  
-- Feature importance analysis via **permutation importance** highlights key factors.  
+- Fraudulent transactions often have high **Failed_Transaction_Count_7d**,**Daily_Transaction_Count**, **Account_Balance Card_Type** and  **Risk_score**.  
+- The neural network model performs better with **ReLU activation and Adam optimizer**.
+- The neural network model performs better with **higher numeber of epochs, higher learning rate, and higher number of neurons per layer**. 
+- The highest performance of the model is 99%. 
 
 ---
 
@@ -69,16 +80,12 @@ The primary goal is to classify financial transactions as **fraudulent or non-fr
 ---
 
 ## Managerial Insights  
-- **Risk-based Alerts:** Implement additional verification for high-risk transactions.  
-- **Device & Location Analysis:** Flag transactions from unknown devices or locations.  
+- **Transaction-based Alerts:** Implement additional verification for accoubbt that have higher number of failed transactions over  week.
+- **Risk Score Monitoring:** continously monitor risk score to avoid fraudulent activities or immediate detection.
+- **Transaction count Analysis:** Flag accounts with transactions in high frequency.
+- **Card Type:** Additional verification of the card type that has the higher fraud activities.
 - **Fraud Prevention Strategies:** Strengthen authentication for large transactions.  
 - **Real-time Monitoring:** Deploy this model to detect fraud in real-time.  
 
----
 
-## How to Run the Project  
-1. Clone this repository:  
-   ```bash
-   git clone https://github.com/your-repo/fraud-detection.git
-   cd fraud-detection
 
