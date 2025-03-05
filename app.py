@@ -9,6 +9,7 @@ from sklearn.preprocessing import StandardScaler, OrdinalEncoder, MinMaxScaler
 from sklearn.metrics import accuracy_score, confusion_matrix, roc_curve, auc, precision_recall_curve
 import matplotlib.pyplot as plt
 import seaborn as sns
+import shap
 
 # Function to load and preprocess dataset
 def load_and_preprocess_data(file_path="synthetic_fraud_dataset.csv"):
