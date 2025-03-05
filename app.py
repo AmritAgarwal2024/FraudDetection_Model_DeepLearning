@@ -9,6 +9,7 @@ from sklearn.preprocessing import StandardScaler, OrdinalEncoder, MinMaxScaler
 from sklearn.metrics import accuracy_score, confusion_matrix, roc_curve, auc, precision_recall_curve
 import matplotlib.pyplot as plt
 import seaborn as sns
+import shap  # Import SHAP for feature importance
 
 # Function to load and preprocess dataset
 def load_and_preprocess_data(file_path="synthetic_fraud_dataset.csv"):
@@ -69,13 +70,19 @@ class FraudNN(nn.Module):
         x = self.sigmoid(self.fc2(x))
         return x
 
+# Function to Compute SHAP Feature Importance
+def compute_shap_values(model, X_train_tensor):
+    explainer = shap.Explainer(model, X_train_tensor)
+    shap_values = explainer(X_train_tensor)
+    return shap_values
+
 # Model Training (Executed on button click)
 if st.sidebar.button("Train Model"):
     try:
         # Preprocess dataset
         X = df.drop(columns=['Fraud_Label'])
         y = df['Fraud_Label']
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state= 55004)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=55004)
         scaler = StandardScaler()
         X_train = scaler.fit_transform(X_train)
         X_test = scaler.transform(X_test)
@@ -122,7 +129,7 @@ if st.sidebar.button("Train Model"):
         
         # Display results
         st.write(f"### Model Accuracy: {accuracy:.4f}")
-        
+
         # Plot Confusion Matrix
         fig, ax = plt.subplots()
         sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=['No Fraud', 'Fraud'], yticklabels=['No Fraud', 'Fraud'])
@@ -157,6 +164,24 @@ if st.sidebar.button("Train Model"):
         ax.set_ylabel("Loss")
         ax.legend()
         st.pyplot(fig)
-    
+
+        # Compute and Display SHAP Feature Importance
+        shap_values = compute_shap_values(model, X_train_tensor)
+
+        # Convert SHAP values to DataFrame
+        feature_importance = pd.DataFrame(
+            {"Feature": X.columns, "Importance": np.abs(shap_values.values).mean(axis=0)}
+        ).sort_values(by="Importance", ascending=False)
+
+        # Display Feature Importance Table
+        st.write("### Feature Importance")
+        st.dataframe(feature_importance)
+
+        # Plot Feature Importance
+        fig, ax = plt.subplots()
+        sns.barplot(x="Importance", y="Feature", data=feature_importance, ax=ax)
+        ax.set_title("Feature Importance based on SHAP")
+        st.pyplot(fig)
+
     except Exception as e:
         st.error(f"Error during training: {e}")
