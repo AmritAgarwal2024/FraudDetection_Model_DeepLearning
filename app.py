@@ -125,6 +125,18 @@ if st.sidebar.button("Train Model"):
         # Display accuracy
         st.write(f"### Model Accuracy: {accuracy:.4f}")
 
+        # Compute and Display Feature Importance Table
+        from sklearn.linear_model import LogisticRegression
+        lr_model = LogisticRegression()
+        lr_model.fit(X_train_scaled, y_train)
+
+        perm_importance = permutation_importance(lr_model, X_test_scaled, y_test, scoring='accuracy')
+        importance_df = pd.DataFrame({'Variable': X.columns, 'Feature Importance': perm_importance.importances_mean})
+        importance_df = importance_df.sort_values(by='Feature Importance', ascending=False)
+
+        st.write("### Feature Importance")
+        st.dataframe(importance_df)  # Display as a table
+
         # Plot Confusion Matrix
         fig, ax = plt.subplots()
         sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=['No Fraud', 'Fraud'], yticklabels=['No Fraud', 'Fraud'])
@@ -158,20 +170,6 @@ if st.sidebar.button("Train Model"):
         ax.set_xlabel("Epochs")
         ax.set_ylabel("Loss")
         ax.legend()
-        st.pyplot(fig)
-
-        # Compute and Display Feature Importance
-        from sklearn.linear_model import LogisticRegression
-        lr_model = LogisticRegression()
-        lr_model.fit(X_train_scaled, y_train)
-
-        perm_importance = permutation_importance(lr_model, X_test_scaled, y_test, scoring='accuracy')
-        importance_df = pd.DataFrame({'Feature': X.columns, 'Importance': perm_importance.importances_mean})
-        importance_df = importance_df.sort_values(by='Importance', ascending=False)
-
-        fig, ax = plt.subplots()
-        sns.barplot(x='Importance', y='Feature', data=importance_df, ax=ax)
-        ax.set_title("Feature Importance")
         st.pyplot(fig)
 
     except Exception as e:
