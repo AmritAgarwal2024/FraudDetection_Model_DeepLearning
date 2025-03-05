@@ -69,6 +69,12 @@ class FraudNN(nn.Module):
         x = self.sigmoid(self.fc2(x))
         return x
 
+# Function to Compute SHAP Feature Importance
+def compute_shap_values(model, X_train_tensor):
+    explainer = shap.Explainer(model, X_train_tensor)
+    shap_values = explainer(X_train_tensor)
+    return shap_values
+
 # Model Training (Executed on button click)
 if st.sidebar.button("Train Model"):
     try:
