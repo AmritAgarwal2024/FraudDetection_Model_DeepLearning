@@ -108,13 +108,19 @@ if st.sidebar.button("Train Model"):
         
         # Compute Permutation Feature Importance
         def compute_feature_importance(model, X, y):
-            def model_predict(X_numpy):
-                X_tensor = torch.FloatTensor(X_numpy)
-                model.eval()
-                with torch.no_grad():
-                    return model(X_tensor).numpy().flatten()
+            class ModelWrapper:
+                def __init__(self, model):
+                    self.model = model
+                def fit(self, X, y):
+                    pass  # No need to fit again
+                def predict(self, X_numpy):
+                    X_tensor = torch.FloatTensor(X_numpy)
+                    self.model.eval()
+                    with torch.no_grad():
+                        return self.model(X_tensor).numpy().flatten()
             
-            result = permutation_importance(model_predict, X, y, scoring='accuracy', n_repeats=10, random_state=42)
+            wrapped_model = ModelWrapper(model)
+            result = permutation_importance(wrapped_model, X, y, scoring='accuracy', n_repeats=10, random_state=42)
             return pd.DataFrame({"Feature": X.columns, "Importance": result.importances_mean}).sort_values(by="Importance", ascending=False)
         
         feature_importance = compute_feature_importance(model, X_test, y_test)
@@ -145,16 +151,5 @@ if st.sidebar.button("Train Model"):
         ax.set_title("ROC Curve")
         ax.legend()
         st.pyplot(fig)
-        
-        # Precision-Recall Curve
-        precision, recall, _ = precision_recall_curve(y_test, y_pred)
-        fig, ax = plt.subplots()
-        ax.plot(recall, precision, label="Precision-Recall curve")
-        ax.set_xlabel("Recall")
-        ax.set_ylabel("Precision")
-        ax.set_title("Precision-Recall Curve")
-        ax.legend()
-        st.pyplot(fig)
-    
     except Exception as e:
         st.error(f"Error during training: {e}")
