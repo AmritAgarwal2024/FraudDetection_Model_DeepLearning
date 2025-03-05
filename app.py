@@ -7,15 +7,14 @@ import torch.optim as optim
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, OrdinalEncoder, MinMaxScaler
 from sklearn.metrics import accuracy_score, confusion_matrix, roc_curve, auc, precision_recall_curve
+import shap
 import matplotlib.pyplot as plt
 import seaborn as sns
-import shap  # Import SHAP for feature importance
 
 # Function to load and preprocess dataset
 def load_and_preprocess_data(file_path="synthetic_fraud_dataset.csv"):
     df = pd.read_csv(file_path)
     
-    # Categorical and numerical column selection
     cat_columns = ['Transaction_Type', 'Device_Type', 'Location', 'Merchant_Category', 
                    'IP_Address_Flag', 'Previous_Fraudulent_Activity', 'Card_Type',
                    'Authentication_Method', 'Is_Weekend', 'Fraud_Label']
@@ -24,15 +23,12 @@ def load_and_preprocess_data(file_path="synthetic_fraud_dataset.csv"):
                    'Avg_Transaction_Amount_7d', 'Failed_Transaction_Count_7d',
                    'Card_Age', 'Transaction_Distance', 'Risk_Score']
 
-    # Encoding categorical features
     oe = OrdinalEncoder()
     df_cat_encoded = pd.DataFrame(oe.fit_transform(df[cat_columns]), columns=cat_columns)
 
-    # Scaling numerical features
     scaler = MinMaxScaler()
     df_num_scaled = pd.DataFrame(scaler.fit_transform(df[num_columns]), columns=num_columns)
 
-    # Combining processed data
     df_cleaned = pd.concat([df_num_scaled, df_cat_encoded], axis=1)
     
     return df_cleaned
@@ -70,16 +66,14 @@ class FraudNN(nn.Module):
         x = self.sigmoid(self.fc2(x))
         return x
 
-# Function to Compute SHAP Feature Importance
+# Function to compute SHAP feature importance
 def compute_shap_values(model, X_train_tensor):
     explainer = shap.Explainer(model, X_train_tensor)
     shap_values = explainer(X_train_tensor)
     return shap_values
 
-# Model Training (Executed on button click)
 if st.sidebar.button("Train Model"):
     try:
-        # Preprocess dataset
         X = df.drop(columns=['Fraud_Label'])
         y = df['Fraud_Label']
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=55004)
@@ -87,19 +81,16 @@ if st.sidebar.button("Train Model"):
         X_train = scaler.fit_transform(X_train)
         X_test = scaler.transform(X_test)
         
-        # Convert to PyTorch tensors
         X_train_tensor = torch.FloatTensor(X_train)
         y_train_tensor = torch.FloatTensor(y_train.values).unsqueeze(1)
         X_test_tensor = torch.FloatTensor(X_test)
         y_test_tensor = torch.FloatTensor(y_test.values).unsqueeze(1)
         
-        # Define model
         model = FraudNN(X_train.shape[1], hidden_neurons, activation_function, dropout_rate)
         optimizer_dict = {"Adam": optim.Adam, "SGD": optim.SGD, "RMSprop": optim.RMSprop}
         optimizer = optimizer_dict[optimizer_choice](model.parameters(), lr=learning_rate)
         criterion = nn.BCELoss()
         
-        # Training loop
         train_losses = []
         for epoch in range(epochs):
             model.train()
@@ -109,79 +100,32 @@ if st.sidebar.button("Train Model"):
             loss.backward()
             optimizer.step()
             train_losses.append(loss.item())
-
-            # Early stopping condition
+            
             if early_stopping and epoch > 5 and np.mean(train_losses[-5:]) > np.mean(train_losses[-10:-5]):
                 break
         
-        # Predictions
         model.eval()
         with torch.no_grad():
             y_pred = model(X_test_tensor).numpy()
         y_pred_labels = (y_pred > 0.5).astype(int)
         
-        # Evaluation metrics
         accuracy = accuracy_score(y_test, y_pred_labels)
-        cm = confusion_matrix(y_test, y_pred_labels)
-        fpr, tpr, _ = roc_curve(y_test, y_pred)
-        roc_auc = auc(fpr, tpr)
-        precision, recall, _ = precision_recall_curve(y_test, y_pred)
-        
-        # Display results
         st.write(f"### Model Accuracy: {accuracy:.4f}")
-
-        # Plot Confusion Matrix
-        fig, ax = plt.subplots()
-        sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=['No Fraud', 'Fraud'], yticklabels=['No Fraud', 'Fraud'])
-        ax.set_title("Confusion Matrix")
-        ax.set_xlabel("Predicted")
-        ax.set_ylabel("Actual")
-        st.pyplot(fig)
         
-        # Plot ROC Curve
-        fig, ax = plt.subplots()
-        ax.plot(fpr, tpr, label=f'AUC = {roc_auc:.4f}')
-        ax.plot([0, 1], [0, 1], linestyle='--')
-        ax.set_title("ROC Curve")
-        ax.set_xlabel("False Positive Rate")
-        ax.set_ylabel("True Positive Rate")
-        ax.legend()
-        st.pyplot(fig)
-        
-        # Plot Precision-Recall Curve
-        fig, ax = plt.subplots()
-        ax.plot(recall, precision)
-        ax.set_title("Precision-Recall Curve")
-        ax.set_xlabel("Recall")
-        ax.set_ylabel("Precision")
-        st.pyplot(fig)
-        
-        # Plot Training Loss
-        fig, ax = plt.subplots()
-        ax.plot(train_losses, label='Training Loss')
-        ax.set_title("Loss Over Epochs")
-        ax.set_xlabel("Epochs")
-        ax.set_ylabel("Loss")
-        ax.legend()
-        st.pyplot(fig)
-
-        # Compute and Display SHAP Feature Importance
-        shap_values = compute_shap_values(model, X_train_tensor)
-
-        # Convert SHAP values to DataFrame
-        feature_importance = pd.DataFrame(
-            {"Feature": X.columns, "Importance": np.abs(shap_values.values).mean(axis=0)}
-        ).sort_values(by="Importance", ascending=False)
-
-        # Display Feature Importance Table
-        st.write("### Feature Importance")
-        st.dataframe(feature_importance)
-
-        # Plot Feature Importance
-        fig, ax = plt.subplots()
-        sns.barplot(x="Importance", y="Feature", data=feature_importance, ax=ax)
-        ax.set_title("Feature Importance based on SHAP")
-        st.pyplot(fig)
-
+        if st.sidebar.button("Show Feature Importance"):
+            shap_values = compute_shap_values(model, X_train_tensor)
+            
+            feature_importance = pd.DataFrame(
+                {"Feature": X.columns, "Importance": np.abs(shap_values.values).mean(axis=0)}
+            ).sort_values(by="Importance", ascending=False)
+            
+            st.write("### Feature Importance")
+            st.dataframe(feature_importance)
+            
+            fig, ax = plt.subplots()
+            sns.barplot(x="Importance", y="Feature", data=feature_importance, ax=ax)
+            ax.set_title("Feature Importance based on SHAP")
+            st.pyplot(fig)
+    
     except Exception as e:
         st.error(f"Error during training: {e}")
