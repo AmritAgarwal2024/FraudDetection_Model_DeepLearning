@@ -15,6 +15,7 @@ import seaborn as sns
 def load_and_preprocess_data(file_path="synthetic_fraud_dataset.csv"):
     df = pd.read_csv(file_path)
     
+    # Categorical and numerical column selection
     cat_columns = ['Transaction_Type', 'Device_Type', 'Location', 'Merchant_Category', 
                    'IP_Address_Flag', 'Previous_Fraudulent_Activity', 'Card_Type',
                    'Authentication_Method', 'Is_Weekend', 'Fraud_Label']
@@ -23,12 +24,15 @@ def load_and_preprocess_data(file_path="synthetic_fraud_dataset.csv"):
                    'Avg_Transaction_Amount_7d', 'Failed_Transaction_Count_7d',
                    'Card_Age', 'Transaction_Distance', 'Risk_Score']
 
+    # Encoding categorical features
     oe = OrdinalEncoder()
     df_cat_encoded = pd.DataFrame(oe.fit_transform(df[cat_columns]), columns=cat_columns)
 
+    # Scaling numerical features
     scaler = MinMaxScaler()
     df_num_scaled = pd.DataFrame(scaler.fit_transform(df[num_columns]), columns=num_columns)
 
+    # Combining processed data
     df_cleaned = pd.concat([df_num_scaled, df_cat_encoded], axis=1)
     
     return df_cleaned
@@ -66,91 +70,96 @@ class FraudNN(nn.Module):
         x = self.sigmoid(self.fc2(x))
         return x
 
-if st.sidebar.button("Train Model"):
-    try:
-        X = df.drop(columns=['Fraud_Label'])
-        y = df['Fraud_Label']
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=55004)
-        scaler = StandardScaler()
-        X_train = scaler.fit_transform(X_train)
-        X_test = scaler.transform(X_test)
-        
-        X_train_tensor = torch.FloatTensor(X_train)
-        y_train_tensor = torch.FloatTensor(y_train.values).unsqueeze(1)
-        X_test_tensor = torch.FloatTensor(X_test)
-        y_test_tensor = torch.FloatTensor(y_test.values).unsqueeze(1)
-        
-        model = FraudNN(X_train.shape[1], hidden_neurons, activation_function, dropout_rate)
-        optimizer_dict = {"Adam": optim.Adam, "SGD": optim.SGD, "RMSprop": optim.RMSprop}
-        optimizer = optimizer_dict[optimizer_choice](model.parameters(), lr=learning_rate)
-        criterion = nn.BCELoss()
-        
-        train_losses = []
-        for epoch in range(epochs):
-            model.train()
-            optimizer.zero_grad()
-            output = model(X_train_tensor)
-            loss = criterion(output, y_train_tensor)
-            loss.backward()
-            optimizer.step()
-            train_losses.append(loss.item())
-            
-            if early_stopping and epoch > 5 and np.mean(train_losses[-5:]) > np.mean(train_losses[-10:-5]):
-                break
-        
-        model.eval()
-        with torch.no_grad():
-            y_pred = model(X_test_tensor).numpy().flatten()
-        y_pred_labels = (y_pred > 0.5).astype(int)
-        
-        accuracy = accuracy_score(y_test, y_pred_labels)
-        st.write(f"### Model Accuracy: {accuracy:.4f}")
-        
-        # Compute Permutation Feature Importance
-        def compute_feature_importance(model, X, y):
-            class ModelWrapper:
-                def __init__(self, model):
-                    self.model = model
-                def fit(self, X, y):
-                    pass  # No need to fit again
-                def predict(self, X_numpy):
-                    X_tensor = torch.FloatTensor(X_numpy)
-                    self.model.eval()
-                    with torch.no_grad():
-                        probabilities = self.model(X_tensor).numpy().flatten()
-                    return (probabilities > 0.5).astype(int)  # Convert probabilities to binary predictions
-            
-            wrapped_model = ModelWrapper(model)
-            result = permutation_importance(wrapped_model, X, y, scoring='accuracy', n_repeats=10, random_state=42)
-            return pd.DataFrame({"Feature": X.columns, "Importance": result.importances_mean}).sort_values(by="Importance", ascending=False)
-        
-        feature_importance = compute_feature_importance(model, X_test, y_test)
-        
-        st.write("### Feature Importance")
-        st.dataframe(feature_importance)
-        
-        fig, ax = plt.subplots()
-        sns.barplot(x="Importance", y="Feature", data=feature_importance, ax=ax)
-        ax.set_title("Feature Importance based on Permutation Importance")
-        st.pyplot(fig)
-        
-        # Confusion Matrix
-        cm = confusion_matrix(y_test, y_pred_labels)
-        fig, ax = plt.subplots()
-        sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", ax=ax)
-        ax.set_title("Confusion Matrix")
-        st.pyplot(fig)
-        
-        # ROC Curve
-        fpr, tpr, _ = roc_curve(y_test, y_pred)
-        roc_auc = auc(fpr, tpr)
-        fig, ax = plt.subplots()
-        ax.plot(fpr, tpr, label=f'ROC curve (area = {roc_auc:.2f}')
-        ax.plot([0, 1], [0, 1], 'k--')
-        ax.set_xlabel("False Positive Rate")
-        ax.set_ylabel("True Positive Rate")
-        ax.set_title("ROC Curve")
-        ax.legend()
-        st.pyplot(fig)
-    except Exception as e:
-        st.error(f"Error during training: {e}")
+# Function to compute feature importance
+def compute_feature_importance(model, X, y, feature_names):
+    class ModelWrapper:
+        def __init__(self, model):
+            self.model = model
+        def fit(self, X, y):
+            pass  # No need to fit again
+        def predict(self, X_numpy):
+            X_tensor = torch.FloatTensor(X_numpy)
+            self.model.eval()
+            with torch.no_grad():
+                probabilities = self.model(X_tensor).numpy().flatten()
+            return (probabilities > 0.5).astype(int)  # Convert probabilities to binary predictions
+
+    wrapped_model = ModelWrapper(model)
+    X_df = pd.DataFrame(X, columns=feature_names)
+    result = permutation_importance(wrapped_model, X_df, y, scoring='accuracy', n_repeats=10, random_state=42)
+    return pd.DataFrame({"Feature": feature_names, "Importance": result.importances_mean}).sort_values(by="Importance", ascending=False)
+
+# Model Training
+X = df.drop(columns=['Fraud_Label'])
+y = df['Fraud_Label']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=55004)
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Convert to PyTorch tensors
+X_train_tensor = torch.FloatTensor(X_train)
+y_train_tensor = torch.FloatTensor(y_train.values).unsqueeze(1)
+X_test_tensor = torch.FloatTensor(X_test)
+y_test_tensor = torch.FloatTensor(y_test.values).unsqueeze(1)
+
+# Define model
+model = FraudNN(X_train.shape[1], hidden_neurons, activation_function, dropout_rate)
+optimizer_dict = {"Adam": optim.Adam, "SGD": optim.SGD, "RMSprop": optim.RMSprop}
+optimizer = optimizer_dict[optimizer_choice](model.parameters(), lr=learning_rate)
+criterion = nn.BCELoss()
+
+# Training loop
+train_losses = []
+for epoch in range(epochs):
+    model.train()
+    optimizer.zero_grad()
+    output = model(X_train_tensor)
+    loss = criterion(output, y_train_tensor)
+    loss.backward()
+    optimizer.step()
+    train_losses.append(loss.item())
+    if early_stopping and epoch > 5 and np.mean(train_losses[-5:]) > np.mean(train_losses[-10:-5]):
+        break
+
+# Predictions
+model.eval()
+with torch.no_grad():
+    y_pred = model(X_test_tensor).numpy().flatten()
+y_pred_labels = (y_pred > 0.5).astype(int)
+
+# Compute feature importance
+feature_importance = compute_feature_importance(model, X_test, y_test, X.columns)
+
+# Display feature importance
+st.write("### Feature Importance")
+st.dataframe(feature_importance)
+
+# Evaluation metrics
+accuracy = accuracy_score(y_test, y_pred_labels)
+st.write(f"### Model Accuracy: {accuracy:.4f}")
+
+# Plot Confusion Matrix
+fig, ax = plt.subplots()
+sns.heatmap(confusion_matrix(y_test, y_pred_labels), annot=True, fmt="d", cmap="Blues")
+ax.set_title("Confusion Matrix")
+st.pyplot(fig)
+
+# Plot ROC Curve
+fpr, tpr, _ = roc_curve(y_test, y_pred)
+roc_auc = auc(fpr, tpr)
+fig, ax = plt.subplots()
+ax.plot(fpr, tpr, label=f'AUC = {roc_auc:.4f}')
+ax.plot([0, 1], [0, 1], linestyle='--')
+st.pyplot(fig)
+
+# Plot Precision-Recall Curve
+precision, recall, _ = precision_recall_curve(y_test, y_pred)
+fig, ax = plt.subplots()
+ax.plot(recall, precision)
+st.pyplot(fig)
+
+# Plot Training Loss
+fig, ax = plt.subplots()
+ax.plot(train_losses)
+st.pyplot(fig)
