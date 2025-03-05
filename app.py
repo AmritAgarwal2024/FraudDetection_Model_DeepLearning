@@ -75,7 +75,7 @@ if st.sidebar.button("Train Model"):
         # Preprocess dataset
         X = df.drop(columns=['Fraud_Label'])
         y = df['Fraud_Label']
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=055004)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state= 55004)
         scaler = StandardScaler()
         X_train = scaler.fit_transform(X_train)
         X_test = scaler.transform(X_test)
