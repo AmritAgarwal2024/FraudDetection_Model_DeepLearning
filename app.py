@@ -9,7 +9,6 @@ from sklearn.preprocessing import StandardScaler, OrdinalEncoder, MinMaxScaler
 from sklearn.metrics import accuracy_score, confusion_matrix, roc_curve, auc, precision_recall_curve
 import matplotlib.pyplot as plt
 import seaborn as sns
-import shap
 
 # Function to load and preprocess dataset
 def load_and_preprocess_data(file_path="synthetic_fraud_dataset.csv"):
@@ -69,12 +68,6 @@ class FraudNN(nn.Module):
         x = self.dropout(x)
         x = self.sigmoid(self.fc2(x))
         return x
-
-# Function to Compute SHAP Feature Importance
-def compute_shap_values(model, X_train_tensor):
-    explainer = shap.Explainer(lambda x: model(torch.FloatTensor(x)).detach().numpy(), X_train_tensor.numpy())
-    shap_values = explainer(X_train_tensor.numpy())  # Convert tensor to numpy
-    return shap_values
 
 # Model Training (Executed on button click)
 if st.sidebar.button("Train Model"):
@@ -136,24 +129,6 @@ if st.sidebar.button("Train Model"):
         ax.set_title("Confusion Matrix")
         ax.set_xlabel("Predicted")
         ax.set_ylabel("Actual")
-        st.pyplot(fig)
-
-        # Compute and Display SHAP Feature Importance
-        shap_values = compute_shap_values(model, X_train_tensor)
-
-        # Convert SHAP values to DataFrame
-        feature_importance = pd.DataFrame(
-            {"Feature": X.columns, "Importance": np.abs(shap_values.values).mean(axis=0)}
-        ).sort_values(by="Importance", ascending=False)
-
-        # Display Feature Importance Table
-        st.write("### Feature Importance")
-        st.dataframe(feature_importance)
-
-        # Plot Feature Importance
-        fig, ax = plt.subplots()
-        sns.barplot(x="Importance", y="Feature", data=feature_importance, ax=ax)
-        ax.set_title("Feature Importance based on SHAP")
         st.pyplot(fig)
         
         # Plot ROC Curve
