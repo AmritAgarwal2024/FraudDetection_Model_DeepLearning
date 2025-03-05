@@ -1,4 +1,17 @@
-!pip install torch
+import sys
+import subprocess
+
+# Function to install torch
+def install_torch():
+    try:
+        import torch
+        print("Torch is already installed.")
+    except ImportError:
+        print("Installing torch...")
+        subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'torch'])
+
+# Call the installation function
+install_torch()
 import streamlit as st
 import pandas as pd
 import numpy as np
