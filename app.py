@@ -7,7 +7,7 @@ import torch.optim as optim
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, OrdinalEncoder, MinMaxScaler
 from sklearn.metrics import accuracy_score, confusion_matrix, roc_curve, auc, precision_recall_curve
-import shap
+from sklearn.inspection import permutation_importance
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -66,12 +66,6 @@ class FraudNN(nn.Module):
         x = self.sigmoid(self.fc2(x))
         return x
 
-# Function to compute SHAP feature importance
-def compute_shap_values(model, X_train_tensor):
-    explainer = shap.Explainer(model, X_train_tensor)
-    shap_values = explainer(X_train_tensor)
-    return shap_values
-
 if st.sidebar.button("Train Model"):
     try:
         X = df.drop(columns=['Fraud_Label'])
@@ -112,20 +106,55 @@ if st.sidebar.button("Train Model"):
         accuracy = accuracy_score(y_test, y_pred_labels)
         st.write(f"### Model Accuracy: {accuracy:.4f}")
         
-        if st.sidebar.button("Show Feature Importance"):
-            shap_values = compute_shap_values(model, X_train_tensor)
+        # Compute Permutation Feature Importance
+        def compute_feature_importance(model, X, y):
+            def model_predict(X_numpy):
+                X_tensor = torch.FloatTensor(X_numpy)
+                model.eval()
+                with torch.no_grad():
+                    return model(X_tensor).numpy().flatten()
             
-            feature_importance = pd.DataFrame(
-                {"Feature": X.columns, "Importance": np.abs(shap_values.values).mean(axis=0)}
-            ).sort_values(by="Importance", ascending=False)
-            
-            st.write("### Feature Importance")
-            st.dataframe(feature_importance)
-            
-            fig, ax = plt.subplots()
-            sns.barplot(x="Importance", y="Feature", data=feature_importance, ax=ax)
-            ax.set_title("Feature Importance based on SHAP")
-            st.pyplot(fig)
+            result = permutation_importance(model_predict, X, y, scoring='accuracy', n_repeats=10, random_state=42)
+            return pd.DataFrame({"Feature": X.columns, "Importance": result.importances_mean}).sort_values(by="Importance", ascending=False)
+        
+        feature_importance = compute_feature_importance(model, X_test, y_test)
+        
+        st.write("### Feature Importance")
+        st.dataframe(feature_importance)
+        
+        fig, ax = plt.subplots()
+        sns.barplot(x="Importance", y="Feature", data=feature_importance, ax=ax)
+        ax.set_title("Feature Importance based on Permutation Importance")
+        st.pyplot(fig)
+        
+        # Confusion Matrix
+        cm = confusion_matrix(y_test, y_pred_labels)
+        fig, ax = plt.subplots()
+        sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", ax=ax)
+        ax.set_title("Confusion Matrix")
+        st.pyplot(fig)
+        
+        # ROC Curve
+        fpr, tpr, _ = roc_curve(y_test, y_pred)
+        roc_auc = auc(fpr, tpr)
+        fig, ax = plt.subplots()
+        ax.plot(fpr, tpr, label=f'ROC curve (area = {roc_auc:.2f}')
+        ax.plot([0, 1], [0, 1], 'k--')
+        ax.set_xlabel("False Positive Rate")
+        ax.set_ylabel("True Positive Rate")
+        ax.set_title("ROC Curve")
+        ax.legend()
+        st.pyplot(fig)
+        
+        # Precision-Recall Curve
+        precision, recall, _ = precision_recall_curve(y_test, y_pred)
+        fig, ax = plt.subplots()
+        ax.plot(recall, precision, label="Precision-Recall curve")
+        ax.set_xlabel("Recall")
+        ax.set_ylabel("Precision")
+        ax.set_title("Precision-Recall Curve")
+        ax.legend()
+        st.pyplot(fig)
     
     except Exception as e:
         st.error(f"Error during training: {e}")
