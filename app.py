@@ -1,8 +1,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import requests
-import io
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -10,18 +8,14 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 
-# Function to load dataset from streamlit
-
+# Function to load dataset from local environment
 def load_data(file_path="synthetic_fraud_dataset.csv"):
     return pd.read_csv(file_path)
 
 # Streamlit UI
 st.title("Fraud Detection Model Trainer")
 
-
 df = load_data()
-      
-      
 
 # Sidebar for hyperparameters
 st.sidebar.header("Model Hyperparameters")
@@ -52,7 +46,7 @@ class FraudNN(nn.Module):
         return x
 
 # Model Training (Executed on button click)
-if st.sidebar.button("Train Model") and url:
+if st.sidebar.button("Train Model"):
     try:
         # Preprocess dataset
         X = df.drop(columns=['label'])  # Assuming 'label' column is target
@@ -84,6 +78,8 @@ if st.sidebar.button("Train Model") and url:
             loss.backward()
             optimizer.step()
             train_losses.append(loss.item())
+
+            # Early stopping condition
             if early_stopping and epoch > 5 and np.mean(train_losses[-5:]) > np.mean(train_losses[-10:-5]):
                 break
         
@@ -95,5 +91,7 @@ if st.sidebar.button("Train Model") and url:
         ax.set_ylabel("Loss")
         ax.legend()
         st.pyplot(fig)
+
     except Exception as e:
         st.error(f"Error during training: {e}")
+
