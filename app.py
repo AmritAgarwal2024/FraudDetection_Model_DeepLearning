@@ -6,7 +6,9 @@ import torch.nn as nn
 import torch.optim as optim
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, OrdinalEncoder, MinMaxScaler
+from sklearn.metrics import accuracy_score, confusion_matrix, roc_curve, auc, precision_recall_curve
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Function to load and preprocess dataset
 def load_and_preprocess_data(file_path="synthetic_fraud_dataset.csv"):
@@ -71,9 +73,9 @@ class FraudNN(nn.Module):
 if st.sidebar.button("Train Model"):
     try:
         # Preprocess dataset
-        X = df.drop(columns=['Fraud_Label'])  # Target variable
+        X = df.drop(columns=['Fraud_Label'])
         y = df['Fraud_Label']
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=055004)
         scaler = StandardScaler()
         X_train = scaler.fit_transform(X_train)
         X_test = scaler.transform(X_test)
@@ -105,7 +107,49 @@ if st.sidebar.button("Train Model"):
             if early_stopping and epoch > 5 and np.mean(train_losses[-5:]) > np.mean(train_losses[-10:-5]):
                 break
         
-        # Plot loss
+        # Predictions
+        model.eval()
+        with torch.no_grad():
+            y_pred = model(X_test_tensor).numpy()
+        y_pred_labels = (y_pred > 0.5).astype(int)
+        
+        # Evaluation metrics
+        accuracy = accuracy_score(y_test, y_pred_labels)
+        cm = confusion_matrix(y_test, y_pred_labels)
+        fpr, tpr, _ = roc_curve(y_test, y_pred)
+        roc_auc = auc(fpr, tpr)
+        precision, recall, _ = precision_recall_curve(y_test, y_pred)
+        
+        # Display results
+        st.write(f"### Model Accuracy: {accuracy:.4f}")
+        
+        # Plot Confusion Matrix
+        fig, ax = plt.subplots()
+        sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=['No Fraud', 'Fraud'], yticklabels=['No Fraud', 'Fraud'])
+        ax.set_title("Confusion Matrix")
+        ax.set_xlabel("Predicted")
+        ax.set_ylabel("Actual")
+        st.pyplot(fig)
+        
+        # Plot ROC Curve
+        fig, ax = plt.subplots()
+        ax.plot(fpr, tpr, label=f'AUC = {roc_auc:.4f}')
+        ax.plot([0, 1], [0, 1], linestyle='--')
+        ax.set_title("ROC Curve")
+        ax.set_xlabel("False Positive Rate")
+        ax.set_ylabel("True Positive Rate")
+        ax.legend()
+        st.pyplot(fig)
+        
+        # Plot Precision-Recall Curve
+        fig, ax = plt.subplots()
+        ax.plot(recall, precision)
+        ax.set_title("Precision-Recall Curve")
+        ax.set_xlabel("Recall")
+        ax.set_ylabel("Precision")
+        st.pyplot(fig)
+        
+        # Plot Training Loss
         fig, ax = plt.subplots()
         ax.plot(train_losses, label='Training Loss')
         ax.set_title("Loss Over Epochs")
@@ -113,6 +157,6 @@ if st.sidebar.button("Train Model"):
         ax.set_ylabel("Loss")
         ax.legend()
         st.pyplot(fig)
-
+    
     except Exception as e:
         st.error(f"Error during training: {e}")
