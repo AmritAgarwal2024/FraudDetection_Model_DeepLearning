@@ -69,7 +69,7 @@ Dashboard link - https://frauddetectionmodeldeeplearning-kxs2zxcx5jb3slmfllqgzg.
 - The neural network model performs better with **ReLU activation and Adam optimizer**.
 - The neural network model performs better with **higher numeber of epochs, higher learning rate, and higher number of neurons per layer**. 
 - The highest performance of the model is 99%.
-- Model Hyperparameters for best performance     **Epochs** - 
+- Model Hyperparameters for best performance     **Epochs** - 50 , **Batch Size** - 16 , **Learning Rate** - 0.1, **Optimizer** - Adam, **Activation Function** -     Relu, **Neurons per Layer** - 100, **Dropout Rate** - 0.5, **Enabe Early Stopping** - Yes
 
 
 ---
