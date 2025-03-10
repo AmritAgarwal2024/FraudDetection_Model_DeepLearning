@@ -68,7 +68,9 @@ Dashboard link - https://frauddetectionmodeldeeplearning-kxs2zxcx5jb3slmfllqgzg.
 - Fraudulent transactions often have high **Failed_Transaction_Count_7d**,**Daily_Transaction_Count**, **Account_Balance Card_Type** and  **Risk_score**.  
 - The neural network model performs better with **ReLU activation and Adam optimizer**.
 - The neural network model performs better with **higher numeber of epochs, higher learning rate, and higher number of neurons per layer**. 
-- The highest performance of the model is 99%. 
+- The highest performance of the model is 99%.
+- Model Hyperparameters for best performance     **Epochs** - 
+
 
 ---
 
