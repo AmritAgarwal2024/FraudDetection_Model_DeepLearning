@@ -27,13 +27,6 @@ Dashboard link - https://frauddetectionmodeldeeplearning-kxs2zxcx5jb3slmfllqgzg.
 
 ---
 
-## Problem Statements  
-1. **Fraud Detection:** To detect the chance of a fraud given transaction details.  
-2. **Imbalanced Data:** Fraudulent transactions are rare compared to legitimate ones, making detection challenging.  
-3. **Need for Real-time Detection:** Traditional fraud detection systems often work in hindsight; real-time monitoring is required.  
-4. **Feature Significance Understanding:** Identifying key factors contributing to fraud can improve fraud prevention mechanisms.  
-5. **Hyperparameter Tunig:** Understanding the effect of hyperparameter tuning like epochs, batch size, learning rate, hidden layers, optimizers etc on performance 
-   of an artificial neural network model.  
 
 
 
@@ -76,7 +69,19 @@ Dashboard link - https://frauddetectionmodeldeeplearning-kxs2zxcx5jb3slmfllqgzg.
 
 ---
 
-## Observations  
+## nature of Transaction , Definition of Fraud (types of fraud)
+
+## Problem Statements  
+1. **Fraud Detection:** To detect the chance of a fraud given transaction details.
+2. **Classification Of Fraud**
+3. **Imbalanced Data:** Fraudulent transactions are rare compared to legitimate ones, making detection challenging.  
+4. **Need for Real-time Detection:** Traditional fraud detection systems often work in hindsight; real-time monitoring is required.  
+5. **Feature Significance Understanding:** Identifying key factors contributing to fraud can improve fraud prevention mechanisms.  
+6. **Hyperparameter Tunig:** Understanding the effect of hyperparameter tuning like epochs, batch size, learning rate, hidden layers, optimizers etc on performance 
+   of an artificial neural network model.  
+
+
+## Observations 
 - The dataset is **highly imbalanced**, with fewer fraudulent transactions.  
 - Fraudulent transactions often have high **Failed_Transaction_Count_7d**,**Daily_Transaction_Count**, **Account_Balance Card_Type** and  **Risk_score**.  
 - The neural network model performs better with **ReLU activation and Adam optimizer**.
