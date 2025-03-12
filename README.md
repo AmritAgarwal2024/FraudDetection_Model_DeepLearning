@@ -35,9 +35,22 @@ Dashboard link - https://frauddetectionmodeldeeplearning-kxs2zxcx5jb3slmfllqgzg.
 5. **Hyperparameter Tunig:** Understanding the effect of hyperparameter tuning like epochs, batch size, learning rate, hidden layers, optimizers etc on performance 
    of an artificial neural network model.  
 
+
+
 ## Nature of Data  
 
-### Categorical Variables (Encoded)  
+###Shape and Size
+
+###Source
+
+### Frequency of data - daily, weekly, timecoded, last Updated
+
+## varible information
+###Index 
+### non index categorical( Nominal Ordinal)
+### Non index non categorical
+
+### Categorical Variables 
 - **Transaction_Type** – Online, POS, ATM, etc.  
 - **Device_Type** – Mobile, laptop, desktop.  
 - **Location** – Geographical location of the transaction.  
@@ -48,7 +61,7 @@ Dashboard link - https://frauddetectionmodeldeeplearning-kxs2zxcx5jb3slmfllqgzg.
 - **Authentication_Method** – OTP, biometric, PIN.  
 - **Is_Weekend** – Whether the transaction occurred on a weekend.  
 
-### Numerical Variables (Scaled)  
+### Numerical Variables 
 - **Transaction_Amount** – Value of the transaction.  
 - **Account_Balance** – Account balance before the transaction.  
 - **Daily_Transaction_Count** – Number of transactions per day.  
