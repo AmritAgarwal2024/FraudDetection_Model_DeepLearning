@@ -30,7 +30,8 @@ Dashboard link - https://frauddetectionmodeldeeplearning-kxs2zxcx5jb3slmfllqgzg.
 
 
 
-## Nature of Data  
+## Nature of Data
+3. **Imbalanced Data:** Fraudulent transactions are rare compared to legitimate ones, making detection challenging.
 
 ###Shape and Size
 
@@ -73,8 +74,7 @@ Dashboard link - https://frauddetectionmodeldeeplearning-kxs2zxcx5jb3slmfllqgzg.
 
 ## Problem Statements  
 1. **Fraud Detection:** To detect the chance of a fraud given transaction details.
-2. **Classification Of Fraud**
-3. **Imbalanced Data:** Fraudulent transactions are rare compared to legitimate ones, making detection challenging.  
+2. **Classification Of Fraud**  
 4. **Need for Real-time Detection:** Traditional fraud detection systems often work in hindsight; real-time monitoring is required.  
 5. **Feature Significance Understanding:** Identifying key factors contributing to fraud can improve fraud prevention mechanisms.  
 6. **Hyperparameter Tunig:** Understanding the effect of hyperparameter tuning like epochs, batch size, learning rate, hidden layers, optimizers etc on performance 
