@@ -31,19 +31,21 @@ Dashboard link - https://frauddetectionmodeldeeplearning-kxs2zxcx5jb3slmfllqgzg.
 ## Nature of Data
 
  **Imbalanced Data:** Fraudulent transactions are rare compared to legitimate ones, making detection challenging.
-
+ 
 ###Shape and Size - 
 
 ###Source - Kaggle
 ###Link Of Data - 
 
-### Frequency of data - daily, weekly, timecoded, last Updated
+### Frequency of data - Data with daily frequency, last Updated - 31st December 2023
 
-## varible information
-###Index 
-### non index categorical( Nominal Ordinal)
-### Non index non categorical
+## Varible information
+###Index - Transaction_ID, User_ID
+###Non index categorical (Nominal) - Transaction_Type, Location, Device_Type, Merchant_Category, 
+###Non index categorical (Ordinal) - IP_Address_Flag, 
+###Non index non categorical - Transaction_Amount, Timestamp, Account_Balance, 
 
+##Variable Description
 ### Categorical Variables 
 - **Transaction_Type** – Online, POS, ATM, etc.  
 - **Device_Type** – Mobile, laptop, desktop.  
