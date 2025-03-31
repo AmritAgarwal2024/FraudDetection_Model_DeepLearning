@@ -28,24 +28,19 @@ Dashboard link - https://frauddetectionmodeldeeplearning-kxs2zxcx5jb3slmfllqgzg.
 ---
 
 
-## Nature of Data
-
- **Imbalanced Data:** Fraudulent transactions are rare compared to legitimate ones, making detection challenging.
- 
-###Shape and Size - 
-
-###Source - Kaggle
-###Link Of Data - 
-
+## Nature of Data -  **Imbalanced Data:** Fraudulent transactions are rare compared to legitimate ones, making detection challenging. 
+### Shape and Size - (50001,21)
+### Source - Kaggle
 ### Frequency of data - Data with daily frequency, last Updated - 31st December 2023
 
 ## Varible information
 ###Index - Transaction_ID, User_ID
-###Non index categorical (Nominal) - Transaction_Type, Location, Device_Type, Merchant_Category, 
-###Non index categorical (Ordinal) - IP_Address_Flag, 
-###Non index non categorical - Transaction_Amount, Timestamp, Account_Balance, 
+###Non index categorical (Nominal) - Transaction_Type, Location, Device_Type, Merchant_Category, Card_Type, Authentication_Method, Is_Weekend, Fraud_Label
+###Non index categorical (Ordinal) - IP_Address_Flag, Previous_Fraudulent_Activity, Daily_Transaction_Count,
+###Non index non categorical - Transaction_Amount, Timestamp, Account_Balance, Avg_Transaction_Amount_7d, Failed_Transaction_Count_7d, Card_Age,  Risk_Score, Transaction_Distance, 
 
-##Variable Description
+## Variable Description
+ 
 ### Categorical Variables 
 - **Transaction_Type** – Online, POS, ATM, etc.  
 - **Device_Type** – Mobile, laptop, desktop.  
@@ -72,7 +67,12 @@ Dashboard link - https://frauddetectionmodeldeeplearning-kxs2zxcx5jb3slmfllqgzg.
 
 ---
 
-## nature of Transaction , Definition of Fraud (types of fraud)
+## Definition of Fraud (types of fraud)
+- **Failed_Transaction_Count_7d** - High Failed transactions in the last 7 days
+- **Daily_Transaction_Count**  - High daily transaction count
+- **Account_Balance** - Very high accounnt balance tentds to be fraud
+- **Card_Type** - Mastercard has the highest
+- **Risk_score**. - High risk score 
 
 ## Problem Statements  
 1. **Fraud Detection:** To detect the chance of a fraud given transaction details.
@@ -81,17 +81,30 @@ Dashboard link - https://frauddetectionmodeldeeplearning-kxs2zxcx5jb3slmfllqgzg.
 6. **Hyperparameter Tunig for model enhancement:** Understanding the effect of hyperparameter tuning like epochs, batch size, learning rate, hidden layers, optimizers etc on performance 
    of an artificial neural network model.  
 
-## model information
-- initial and final ( before and after hyperparaeter tuning)
-  - dense layer
-  - input layer
-  - activation fn 
-  - output layer
-  - sampling method - stratified sampling 9 imbalanced data)
+## Model Information
+### Initial
+  - epochs - 5
+  - batch size - 16
+  - learning rate - 0.001
+  - optimizer -
+  - activation fn - ReLu
+  - neurons per layer - 20
+  - dropout rate - 0.1
+  - sampling method - stratified sampling (imbalanced data)
+
+### Final
+  - epochs - 50
+  - batch size - 16
+  - learning rate - 0.1
+  - optimizer - Adam
+  - activation fn - ReLu
+  - neurons per layer - 100
+  - dropout rate - 0.5
+  - sampling method - stratified sampling (imbalanced data)
 
 ## Observations 
 comment( The dataset is **highly imbalanced**, with fewer fraudulent transactions. )
-- Fraudulent transactions often have high **Failed_Transaction_Count_7d**,**Daily_Transaction_Count**, **Account_Balance Card_Type** and  **Risk_score**.  types of fraudulent activities 
+- Fraudulent transactions often have high **Failed_Transaction_Count_7d**,**Daily_Transaction_Count**, **Account_Balance** **Card_Type** and  **Risk_score**.  types of fraudulent activities 
 - The neural network model performs better with **ReLU activation** in dense layer and **Adam optimizer**.
 - Overfitting and methods used to prevent
 - The neural network model performs better with **higher numeber of epochs, higher learning rate, and higher number of neurons per layer**. 
@@ -105,8 +118,7 @@ comment( The dataset is **highly imbalanced**, with fewer fraudulent transaction
 
 ## Managerial Insights  
 - **Threshold of variables**
-- ** frequency of fraudds in all categories** - most frequwent and rarest
-- 
+- **Frequency of fraudds in all categories** - Failed_Transaction_Count_7d has the highest amount of frauds and Risk_score has the least frequency of frauds
 - **Transaction-based Alerts:** Implement additional verification for account that have higher number of failed transactions over  week.
 - **Risk Score Monitoring:** continously monitor risk score to avoid fraudulent activities or immediate detection.
 - **Transaction count Analysis:** Flag accounts with transactions in high frequency.
