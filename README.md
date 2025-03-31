@@ -28,14 +28,14 @@ Dashboard link - https://frauddetectionmodeldeeplearning-kxs2zxcx5jb3slmfllqgzg.
 ---
 
 
-
-
 ## Nature of Data
-3. **Imbalanced Data:** Fraudulent transactions are rare compared to legitimate ones, making detection challenging.
 
-###Shape and Size
+ **Imbalanced Data:** Fraudulent transactions are rare compared to legitimate ones, making detection challenging.
 
-###Source
+###Shape and Size - 
+
+###Source - Kaggle
+###Link Of Data - 
 
 ### Frequency of data - daily, weekly, timecoded, last Updated
 
