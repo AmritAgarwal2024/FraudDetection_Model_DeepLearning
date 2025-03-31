@@ -86,7 +86,7 @@ Dashboard link - https://frauddetectionmodeldeeplearning-kxs2zxcx5jb3slmfllqgzg.
   - epochs - 5
   - batch size - 16
   - learning rate - 0.001
-  - optimizer -
+  - optimizer - SGD
   - activation fn - ReLu
   - neurons per layer - 20
   - dropout rate - 0.1
