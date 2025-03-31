@@ -1,6 +1,12 @@
 Dashboard link - https://frauddetectionmodeldeeplearning-kxs2zxcx5jb3slmfllqgzg.streamlit.app/
 
-# Fraud Detection Model  
+# Fraud Detection Model 
+
+## **Contributors**
+- Amrit Agarwal (055004)
+- Oishik Banerjee (055028)
+
+**Group No:** 23
 
 ## Project Details  
 - This project focuses on building a **fraud detection model** using a **neural network** implemented with **PyTorch** and displaying performance metrics on a        streamlit dashboard. 
